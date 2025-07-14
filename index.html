@@ -49,13 +49,10 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <!-- Progress Bar -->
-                        <div class="hidden md:flex items-center space-x-2">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Nivel:</span>
-                            <div class="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                <div id="progressBar" class="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full transition-all duration-300" style="width: 15%"></div>
-                            </div>
-                            <span id="levelText" class="text-sm font-medium text-blue-600 dark:text-blue-400">Principiante</span>
+                        <!-- Session Status -->
+                        <div class="flex items-center space-x-2">
+                            <div id="sessionIndicator" class="w-3 h-3 bg-gray-400 rounded-full"></div>
+                            <span id="sessionStatus" class="text-sm text-gray-600 dark:text-gray-400">Sesión pausada</span>
                         </div>
                         <button id="settingsBtn" class="p-2 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,6 +65,23 @@
             </div>
         </header>
 
+        <!-- API Key Alert (if not configured) -->
+        <div id="apiKeyAlert" class="bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="text-sm text-yellow-800 dark:text-yellow-200">Necesitas configurar tu API Key de Google Gemini para empezar</span>
+                    </div>
+                    <button id="configureApiBtn" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md text-sm transition-colors">
+                        Configurar Ahora
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Main Content -->
         <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full">
@@ -75,18 +89,12 @@
                 <div class="lg:col-span-1 space-y-4">
                     <!-- Session Controls -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4 flex items-center">
-                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-                            Sesión Activa
-                        </h3>
+                        <h3 class="text-lg font-semibold mb-4">🎮 Control de Sesión</h3>
                         <div class="space-y-3">
-                            <button id="pauseBtn" class="w-full px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors flex items-center justify-center">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-                                </svg>
-                                Pausar
+                            <button id="sessionBtn" class="w-full px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                Empezar
                             </button>
-                            <button id="endBtn" class="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center justify-center">
+                            <button id="endBtn" class="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
                                 <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M6 6h12v12H6z"/>
                                 </svg>
@@ -96,14 +104,14 @@
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                 </svg>
-                                Reiniciar
+                                Reiniciar Todo
                             </button>
                         </div>
                     </div>
 
-                    <!-- Quick Stats -->
+                    <!-- Stats -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4">📊 Estadísticas Hoy</h3>
+                        <h3 class="text-lg font-semibold mb-4">📊 Estadísticas de Hoy</h3>
                         <div class="space-y-3">
                             <div class="flex justify-between">
                                 <span class="text-sm text-gray-600 dark:text-gray-400">Conversaciones:</span>
@@ -118,8 +126,8 @@
                                 <span id="todayWords" class="font-medium">0</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Precisión:</span>
-                                <span id="todayAccuracy" class="font-medium text-green-600">0%</span>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Tiempo activo:</span>
+                                <span id="activeTime" class="font-medium">0 min</span>
                             </div>
                         </div>
                     </div>
@@ -128,7 +136,7 @@
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                         <h3 class="text-lg font-semibold mb-4">🎤 Control de Voz</h3>
                         <div class="space-y-3">
-                            <button id="voiceBtn" class="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center justify-center">
+                            <button id="voiceBtn" class="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
                                 <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
                                     <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
@@ -138,6 +146,10 @@
                             <div class="flex items-center space-x-2">
                                 <input type="checkbox" id="autoListen" class="rounded">
                                 <label for="autoListen" class="text-sm">Escucha automática</label>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="enableTTS" class="rounded" checked>
+                                <label for="enableTTS" class="text-sm">Síntesis de voz</label>
                             </div>
                         </div>
                     </div>
@@ -155,24 +167,17 @@
                                     </div>
                                     <div>
                                         <h3 class="font-semibold">EnglishBuddy</h3>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400" id="buddyStatus">Listo para conversar</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400" id="buddyStatus">Esperando que inicies la sesión</p>
                                     </div>
-                                </div>
-                                <div class="flex space-x-2">
-                                    <button id="speakToggle" class="p-2 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-                                        </svg>
-                                    </button>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Chat Messages -->
-                        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4 max-h-96">
+                        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4 min-h-96">
                             <div class="flex justify-center">
-                                <div class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-lg text-sm">
-                                    ¡Hola! Soy tu EnglishBuddy. Háblame en español sobre ti, tus intereses, tu día... ¡Empecemos a conocernos! 😊
+                                <div class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-lg text-sm max-w-md text-center">
+                                    ¡Hola! Soy tu EnglishBuddy. Presiona "Empezar" cuando estés listo para conversar y aprender inglés juntos. 😊
                                 </div>
                             </div>
                         </div>
@@ -193,9 +198,9 @@
                         <!-- Input Area -->
                         <div class="p-4 border-t border-gray-200 dark:border-gray-700">
                             <div class="flex space-x-3">
-                                <input type="text" id="messageInput" placeholder="Escribe tu mensaje o habla..." 
-                                       class="flex-1 px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white">
-                                <button id="sendBtn" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center">
+                                <input type="text" id="messageInput" placeholder="Escribe tu mensaje..." 
+                                       class="flex-1 px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-100 disabled:cursor-not-allowed dark:disabled:bg-gray-600" disabled>
+                                <button id="sendBtn" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                                     </svg>
@@ -207,6 +212,18 @@
 
                 <!-- Right Sidebar - Instructions & Tools -->
                 <div class="lg:col-span-1 space-y-4">
+                    <!-- Progress Indicator -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
+                        <h3 class="font-semibold mb-3">📈 Tu Progreso</h3>
+                        <div class="text-center">
+                            <div class="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                                <span id="levelIcon" class="text-white text-xl font-bold">🌱</span>
+                            </div>
+                            <p id="levelText" class="font-medium">Principiante</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">¡Empecemos tu aventura!</p>
+                        </div>
+                    </div>
+
                     <!-- Custom Instructions -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg">
                         <div class="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -220,7 +237,7 @@
                         <div class="p-4">
                             <textarea id="customInstructions" rows="4" placeholder="Dale instrucciones específicas a tu EnglishBuddy..."
                                       class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-white resize-none"></textarea>
-                            <button id="applyInstructionsBtn" class="w-full mt-3 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-sm transition-colors">
+                            <button id="applyInstructionsBtn" class="w-full mt-3 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-sm transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
                                 Aplicar Instrucciones
                             </button>
                         </div>
@@ -230,55 +247,21 @@
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
                         <h3 class="font-semibold mb-3">⚡ Acciones Rápidas</h3>
                         <div class="space-y-2">
-                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors" data-action="correct">
+                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed dark:disabled:bg-gray-600" data-action="correct" disabled>
                                 ✅ Corregir último error
                             </button>
-                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors" data-action="repeat">
+                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed dark:disabled:bg-gray-600" data-action="repeat" disabled>
                                 🔄 Repetir ejercicio
                             </button>
-                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors" data-action="example">
+                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed dark:disabled:bg-gray-600" data-action="example" disabled>
                                 💡 Más ejemplos
                             </button>
-                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors" data-action="challenge">
+                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed dark:disabled:bg-gray-600" data-action="challenge" disabled>
                                 🎯 Nuevo reto
                             </button>
-                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors" data-action="skip">
+                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed dark:disabled:bg-gray-600" data-action="skip" disabled>
                                 ⏭️ Omitir y continuar
                             </button>
-                        </div>
-                    </div>
-
-                    <!-- Learning Progress -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
-                        <h3 class="font-semibold mb-3">📈 Progreso de Aprendizaje</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span>Vocabulario</span>
-                                    <span id="vocabProgress">45%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 45%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span>Gramática</span>
-                                    <span id="grammarProgress">30%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                    <div class="bg-green-500 h-2 rounded-full" style="width: 30%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span>Pronunciación</span>
-                                    <span id="pronunciationProgress">60%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                    <div class="bg-purple-500 h-2 rounded-full" style="width: 60%"></div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -300,19 +283,32 @@
                 <div class="space-y-4">
                     <!-- API Key -->
                     <div>
-                        <label class="block text-sm font-medium mb-2">API Key de Google Gemini</label>
-                        <div class="flex space-x-2">
-                            <input type="password" id="apiKeyInput" placeholder="Ingresa tu API Key" 
-                                   class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-white">
-                            <button id="saveApiKeyBtn" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm transition-colors">
-                                Guardar
-                            </button>
+                        <label class="block text-sm font-medium mb-2">API Key de Google Gemini *</label>
+                        <div class="space-y-2">
+                            <div class="flex space-x-2">
+                                <input type="password" id="apiKeyInput" placeholder="Ingresa tu API Key" 
+                                       class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-white">
+                                <button id="toggleApiKeyBtn" class="px-3 py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-md">
+                                    👁️
+                                </button>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button id="saveApiKeyBtn" class="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm transition-colors">
+                                    Guardar
+                                </button>
+                                <button id="removeApiKeyBtn" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm transition-colors hidden">
+                                    Eliminar
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                Obtén tu API Key en <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-blue-500 hover:underline">Google AI Studio</a>
+                            </p>
                         </div>
                     </div>
 
                     <!-- Learning Level -->
                     <div>
-                        <label class="block text-sm font-medium mb-2">Nivel de Inglés</label>
+                        <label class="block text-sm font-medium mb-2">Nivel inicial (se ajustará automáticamente)</label>
                         <select id="levelSelect" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-white">
                             <option value="beginner">Principiante</option>
                             <option value="elementary">Elemental</option>
@@ -320,21 +316,6 @@
                             <option value="upper-intermediate">Intermedio Superior</option>
                             <option value="advanced">Avanzado</option>
                         </select>
-                    </div>
-
-                    <!-- Voice Settings -->
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Configuración de Voz</label>
-                        <div class="space-y-2">
-                            <div class="flex items-center space-x-2">
-                                <input type="checkbox" id="enableTTS" class="rounded" checked>
-                                <label for="enableTTS" class="text-sm">Activar síntesis de voz</label>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <input type="checkbox" id="enableSTT" class="rounded" checked>
-                                <label for="enableSTT" class="text-sm">Activar reconocimiento de voz</label>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Reset Data -->
@@ -408,10 +389,13 @@
                     conversationsToday: 0,
                     lessonsToday: 0,
                     wordsToday: 0,
-                    accuracy: 0,
+                    isActive: false,
+                    isPaused: true,
                     isInLesson: false,
                     currentLessonTopic: '',
-                    awaitingCorrection: false
+                    awaitingCorrection: false,
+                    startTime: null,
+                    totalActiveTime: 0
                 };
                 this.settings = {
                     enableTTS: true,
@@ -425,6 +409,7 @@
                     isListening: false
                 };
 
+                this.timeInterval = null;
                 this.initializeApp();
             }
 
@@ -438,9 +423,13 @@
                 if (savedApiKey) {
                     await this.initializeGemini(savedApiKey);
                     document.getElementById('apiKeyInput').value = savedApiKey;
+                    document.getElementById('removeApiKeyBtn').classList.remove('hidden');
+                    document.getElementById('apiKeyAlert').classList.add('hidden');
                 } else {
-                    this.showSettings();
+                    this.showApiKeyAlert();
                 }
+                
+                this.updateUI();
             }
 
             loadUserData() {
@@ -455,6 +444,9 @@
                 
                 if (savedSession) {
                     this.sessionData = { ...this.sessionData, ...JSON.parse(savedSession) };
+                    // Reset session state on app load
+                    this.sessionData.isActive = false;
+                    this.sessionData.isPaused = true;
                 }
                 
                 if (savedSettings) {
@@ -464,8 +456,6 @@
                 if (savedHistory) {
                     this.conversationHistory = JSON.parse(savedHistory);
                 }
-
-                this.updateUI();
             }
 
             saveUserData() {
@@ -483,20 +473,27 @@
                     sendBtn: document.getElementById('sendBtn'),
                     voiceBtn: document.getElementById('voiceBtn'),
                     
-                    // Controls
-                    pauseBtn: document.getElementById('pauseBtn'),
+                    // Session controls
+                    sessionBtn: document.getElementById('sessionBtn'),
                     endBtn: document.getElementById('endBtn'),
                     resetBtn: document.getElementById('resetBtn'),
+                    sessionIndicator: document.getElementById('sessionIndicator'),
+                    sessionStatus: document.getElementById('sessionStatus'),
+                    
+                    // API Key alert
+                    apiKeyAlert: document.getElementById('apiKeyAlert'),
+                    configureApiBtn: document.getElementById('configureApiBtn'),
                     
                     // Settings
                     settingsBtn: document.getElementById('settingsBtn'),
                     settingsModal: document.getElementById('settingsModal'),
                     closeSettingsBtn: document.getElementById('closeSettingsBtn'),
                     apiKeyInput: document.getElementById('apiKeyInput'),
+                    toggleApiKeyBtn: document.getElementById('toggleApiKeyBtn'),
                     saveApiKeyBtn: document.getElementById('saveApiKeyBtn'),
+                    removeApiKeyBtn: document.getElementById('removeApiKeyBtn'),
                     levelSelect: document.getElementById('levelSelect'),
                     enableTTS: document.getElementById('enableTTS'),
-                    enableSTT: document.getElementById('enableSTT'),
                     resetDataBtn: document.getElementById('resetDataBtn'),
                     
                     // Lesson elements
@@ -512,9 +509,9 @@
                     todayConversations: document.getElementById('todayConversations'),
                     todayLessons: document.getElementById('todayLessons'),
                     todayWords: document.getElementById('todayWords'),
-                    todayAccuracy: document.getElementById('todayAccuracy'),
-                    progressBar: document.getElementById('progressBar'),
+                    activeTime: document.getElementById('activeTime'),
                     levelText: document.getElementById('levelText'),
+                    levelIcon: document.getElementById('levelIcon'),
                     buddyStatus: document.getElementById('buddyStatus'),
                     
                     // Correction modal
@@ -528,14 +525,12 @@
                     quickActions: document.querySelectorAll('.quick-action'),
                     
                     // Other
-                    speakToggle: document.getElementById('speakToggle'),
                     autoListen: document.getElementById('autoListen')
                 };
 
                 // Set initial values
                 this.elements.levelSelect.value = this.userProfile.level;
                 this.elements.enableTTS.checked = this.settings.enableTTS;
-                this.elements.enableSTT.checked = this.settings.enableSTT;
                 this.elements.autoListen.checked = this.settings.autoListen;
             }
 
@@ -577,14 +572,19 @@
                 this.elements.voiceBtn.addEventListener('click', () => this.toggleVoice());
 
                 // Session controls
-                this.elements.pauseBtn.addEventListener('click', () => this.pauseSession());
+                this.elements.sessionBtn.addEventListener('click', () => this.toggleSession());
                 this.elements.endBtn.addEventListener('click', () => this.endSession());
                 this.elements.resetBtn.addEventListener('click', () => this.resetSession());
+
+                // API Key
+                this.elements.configureApiBtn.addEventListener('click', () => this.showSettings());
 
                 // Settings
                 this.elements.settingsBtn.addEventListener('click', () => this.showSettings());
                 this.elements.closeSettingsBtn.addEventListener('click', () => this.hideSettings());
+                this.elements.toggleApiKeyBtn.addEventListener('click', () => this.toggleApiKeyVisibility());
                 this.elements.saveApiKeyBtn.addEventListener('click', () => this.saveApiKey());
+                this.elements.removeApiKeyBtn.addEventListener('click', () => this.removeApiKey());
                 this.elements.resetDataBtn.addEventListener('click', () => this.resetAllData());
 
                 // Level change
@@ -597,11 +597,6 @@
                 // Settings checkboxes
                 this.elements.enableTTS.addEventListener('change', (e) => {
                     this.settings.enableTTS = e.target.checked;
-                    this.saveUserData();
-                });
-
-                this.elements.enableSTT.addEventListener('change', (e) => {
-                    this.settings.enableSTT = e.target.checked;
                     this.saveUserData();
                 });
 
@@ -629,9 +624,6 @@
                 this.elements.tryCorrectionBtn.addEventListener('click', () => this.retryCorrection());
                 this.elements.skipCorrectionBtn.addEventListener('click', () => this.skipCorrection());
 
-                // Speech toggle
-                this.elements.speakToggle.addEventListener('click', () => this.toggleSpeechOutput());
-
                 // Click outside modal to close
                 window.addEventListener('click', (e) => {
                     if (e.target === this.elements.settingsModal) {
@@ -647,24 +639,12 @@
                 try {
                     const genAI = new GoogleGenerativeAI(apiKey);
                     this.geminiModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-                    
-                    // If this is the first time, send welcome message
-                    if (this.conversationHistory.length === 0) {
-                        await this.initializeConversation();
-                    }
+                    this.updateSessionButton();
+                    return true;
                 } catch (error) {
                     console.error("Error initializing Gemini:", error);
                     throw new Error("API Key inválida o error de inicialización");
                 }
-            }
-
-            async initializeConversation() {
-                const systemPrompt = this.buildSystemPrompt();
-                this.conversationHistory = [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'assistant', content: '¡Hola! Soy tu EnglishBuddy. Háblame en español sobre ti, tus intereses, tu día... ¡Empecemos a conocernos! 😊' }
-                ];
-                this.saveUserData();
             }
 
             buildSystemPrompt() {
@@ -712,9 +692,201 @@ INSTRUCCIONES PRINCIPALES:
 Responde de manera natural y siempre recuerda que eres como un amigo que ayuda a aprender inglés.`;
             }
 
+            toggleSession() {
+                if (!this.geminiModel) {
+                    this.showError('Por favor configura tu API Key primero');
+                    return;
+                }
+
+                if (!this.sessionData.isActive) {
+                    this.startSession();
+                } else if (this.sessionData.isPaused) {
+                    this.resumeSession();
+                } else {
+                    this.pauseSession();
+                }
+            }
+
+            async startSession() {
+                this.sessionData.isActive = true;
+                this.sessionData.isPaused = false;
+                this.sessionData.startTime = new Date();
+                
+                // Initialize conversation if empty
+                if (this.conversationHistory.length === 0) {
+                    await this.initializeConversation();
+                }
+                
+                this.startTimeTracking();
+                this.enableInterface();
+                this.updateSessionButton();
+                this.updateSessionStatus();
+                this.saveUserData();
+                
+                this.updateBuddyStatus('¡Listo para conversar!');
+            }
+
+            pauseSession() {
+                this.sessionData.isPaused = true;
+                this.stopTimeTracking();
+                this.disableInterface();
+                this.updateSessionButton();
+                this.updateSessionStatus();
+                this.updateBuddyStatus('Sesión pausada');
+                this.saveUserData();
+            }
+
+            resumeSession() {
+                this.sessionData.isPaused = false;
+                this.sessionData.startTime = new Date();
+                this.startTimeTracking();
+                this.enableInterface();
+                this.updateSessionButton();
+                this.updateSessionStatus();
+                this.updateBuddyStatus('¡Continuemos!');
+                this.saveUserData();
+            }
+
+            endSession() {
+                this.sessionData.isActive = false;
+                this.sessionData.isPaused = true;
+                this.stopTimeTracking();
+                this.disableInterface();
+                this.updateSessionButton();
+                this.updateSessionStatus();
+                this.updateBuddyStatus('Sesión finalizada');
+                
+                this.addMessage('system', '👋 Sesión finalizada. ¡Excelente trabajo hoy!');
+                this.saveUserData();
+            }
+
+            resetSession() {
+                if (this.showConfirmDialog('¿Seguro que quieres reiniciar todo? Se perderá el progreso actual.')) {
+                    this.conversationHistory = [];
+                    this.sessionData = {
+                        conversationsToday: 0,
+                        lessonsToday: 0,
+                        wordsToday: 0,
+                        isActive: false,
+                        isPaused: true,
+                        isInLesson: false,
+                        currentLessonTopic: '',
+                        awaitingCorrection: false,
+                        startTime: null,
+                        totalActiveTime: 0
+                    };
+                    this.elements.chatMessages.innerHTML = `
+                        <div class="flex justify-center">
+                            <div class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-lg text-sm max-w-md text-center">
+                                ¡Hola! Soy tu EnglishBuddy. Presiona "Empezar" cuando estés listo para conversar y aprender inglés juntos. 😊
+                            </div>
+                        </div>
+                    `;
+                    this.stopTimeTracking();
+                    this.disableInterface();
+                    this.updateUI();
+                    this.saveUserData();
+                }
+            }
+
+            updateSessionButton() {
+                if (!this.geminiModel) {
+                    this.elements.sessionBtn.textContent = 'Empezar';
+                    this.elements.sessionBtn.disabled = true;
+                    this.elements.sessionBtn.className = 'w-full px-4 py-3 bg-gray-400 text-white rounded-lg font-medium cursor-not-allowed';
+                    return;
+                }
+
+                if (!this.sessionData.isActive) {
+                    this.elements.sessionBtn.textContent = 'Empezar';
+                    this.elements.sessionBtn.disabled = false;
+                    this.elements.sessionBtn.className = 'w-full px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium';
+                } else if (this.sessionData.isPaused) {
+                    this.elements.sessionBtn.textContent = 'Continuar';
+                    this.elements.sessionBtn.disabled = false;
+                    this.elements.sessionBtn.className = 'w-full px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium';
+                } else {
+                    this.elements.sessionBtn.textContent = 'Pausar';
+                    this.elements.sessionBtn.disabled = false;
+                    this.elements.sessionBtn.className = 'w-full px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors font-medium';
+                }
+            }
+
+            updateSessionStatus() {
+                const indicator = this.elements.sessionIndicator;
+                const status = this.elements.sessionStatus;
+
+                if (!this.sessionData.isActive) {
+                    indicator.className = 'w-3 h-3 bg-gray-400 rounded-full';
+                    status.textContent = 'Sesión pausada';
+                    this.elements.endBtn.disabled = true;
+                } else if (this.sessionData.isPaused) {
+                    indicator.className = 'w-3 h-3 bg-yellow-400 rounded-full';
+                    status.textContent = 'En pausa';
+                    this.elements.endBtn.disabled = false;
+                } else {
+                    indicator.className = 'w-3 h-3 bg-green-500 rounded-full animate-pulse';
+                    status.textContent = 'Sesión activa';
+                    this.elements.endBtn.disabled = false;
+                }
+            }
+
+            enableInterface() {
+                this.elements.messageInput.disabled = false;
+                this.elements.sendBtn.disabled = false;
+                this.elements.voiceBtn.disabled = false;
+                this.elements.applyInstructionsBtn.disabled = false;
+                
+                this.elements.quickActions.forEach(btn => {
+                    btn.disabled = false;
+                });
+                
+                this.elements.messageInput.placeholder = 'Escribe tu mensaje...';
+            }
+
+            disableInterface() {
+                this.elements.messageInput.disabled = true;
+                this.elements.sendBtn.disabled = true;
+                this.elements.voiceBtn.disabled = true;
+                this.elements.applyInstructionsBtn.disabled = true;
+                
+                this.elements.quickActions.forEach(btn => {
+                    btn.disabled = true;
+                });
+                
+                this.elements.messageInput.placeholder = 'Inicia la sesión para conversar...';
+            }
+
+            startTimeTracking() {
+                this.timeInterval = setInterval(() => {
+                    this.sessionData.totalActiveTime += 1; // minutes
+                    this.updateUI();
+                }, 60000); // Update every minute
+            }
+
+            stopTimeTracking() {
+                if (this.timeInterval) {
+                    clearInterval(this.timeInterval);
+                    this.timeInterval = null;
+                }
+            }
+
+            async initializeConversation() {
+                const systemPrompt = this.buildSystemPrompt();
+                this.conversationHistory = [
+                    { role: 'system', content: systemPrompt }
+                ];
+                
+                const initialMessage = '¡Hola! Soy tu EnglishBuddy. Cuéntame sobre ti: ¿a qué te dedicas? ¿cuáles son tus intereses? ¿qué te gusta hacer en tu tiempo libre? ¡Empecemos a conocernos! 😊';
+                
+                this.addMessage('assistant', initialMessage);
+                this.conversationHistory.push({ role: 'assistant', content: initialMessage });
+                this.saveUserData();
+            }
+
             async sendMessage() {
                 const message = this.elements.messageInput.value.trim();
-                if (!message || !this.geminiModel) return;
+                if (!message || !this.geminiModel || this.sessionData.isPaused) return;
 
                 this.addMessage('user', message);
                 this.elements.messageInput.value = '';
@@ -762,11 +934,11 @@ Responde como EnglishBuddy de manera natural y útil.`;
                     }
 
                     // Auto-listen if enabled
-                    if (this.settings.autoListen && this.settings.enableSTT) {
+                    if (this.settings.autoListen) {
                         setTimeout(() => this.startVoiceRecognition(), 1000);
                     }
 
-                    this.updateBuddyStatus('Listo para conversar');
+                    this.updateBuddyStatus('¡Listo para conversar!');
                     this.sessionData.conversationsToday++;
                     this.saveUserData();
                     this.updateUI();
@@ -807,7 +979,7 @@ Responde como EnglishBuddy de manera natural y útil.`;
                 const words = message.toLowerCase().split(' ');
                 const potentialInterests = [];
 
-                // Simple keyword extraction (could be improved with NLP)
+                // Simple keyword extraction
                 const topicKeywords = {
                     'tecnología': ['programación', 'código', 'software', 'computadora', 'tecnología'],
                     'música': ['música', 'cantar', 'tocar', 'instrumento', 'banda'],
@@ -905,7 +1077,7 @@ Responde como EnglishBuddy de manera natural y útil.`;
             }
 
             toggleVoice() {
-                if (!this.settings.enableSTT || !this.speech.recognition) {
+                if (!this.speech.recognition) {
                     this.addMessage('system', 'Reconocimiento de voz no disponible en este navegador.');
                     return;
                 }
@@ -943,7 +1115,7 @@ Responde como EnglishBuddy de manera natural y útil.`;
                 // Cancel any ongoing speech
                 this.speech.synthesis.cancel();
 
-                // Clean text for speech (remove markdown and special characters)
+                // Clean text for speech
                 const cleanText = text
                     .replace(/[*_`#]/g, '')
                     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
@@ -957,15 +1129,6 @@ Responde como EnglishBuddy de manera natural y útil.`;
                 this.speech.synthesis.speak(utterance);
             }
 
-            toggleSpeechOutput() {
-                this.settings.enableTTS = !this.settings.enableTTS;
-                this.elements.enableTTS.checked = this.settings.enableTTS;
-                this.saveUserData();
-                
-                const icon = this.elements.speakToggle.querySelector('svg');
-                icon.style.opacity = this.settings.enableTTS ? '1' : '0.5';
-            }
-
             applyCustomInstructions() {
                 const instructions = this.elements.customInstructions.value.trim();
                 if (!instructions) return;
@@ -974,55 +1137,55 @@ Responde como EnglishBuddy de manera natural y útil.`;
                 this.elements.customInstructions.value = '';
             }
 
-            pauseSession() {
-                this.addMessage('system', '⏸️ Sesión pausada. Pulsa cualquier mensaje para continuar.');
-                this.updateBuddyStatus('En pausa');
-            }
-
-            endSession() {
-                this.addMessage('system', '👋 Sesión finalizada. ¡Excelente trabajo hoy!');
-                this.updateBuddyStatus('Sesión finalizada');
-                this.sessionData.isInLesson = false;
-                this.saveUserData();
-            }
-
-            resetSession() {
-                if (this.showConfirmDialog('¿Seguro que quieres reiniciar la conversación? Se perderá el progreso actual.')) {
-                    this.conversationHistory = [];
-                    this.sessionData = {
-                        conversationsToday: 0,
-                        lessonsToday: 0,
-                        wordsToday: 0,
-                        accuracy: 0,
-                        isInLesson: false,
-                        currentLessonTopic: '',
-                        awaitingCorrection: false
-                    };
-                    this.elements.chatMessages.innerHTML = '';
-                    this.initializeConversation();
-                    this.updateUI();
-                    this.saveUserData();
-                }
-            }
-
             showConfirmDialog(message) {
-                return confirm(message); // In a real app, use a custom modal
+                return confirm(message);
+            }
+
+            showApiKeyAlert() {
+                this.elements.apiKeyAlert.classList.remove('hidden');
+            }
+
+            toggleApiKeyVisibility() {
+                const input = this.elements.apiKeyInput;
+                const btn = this.elements.toggleApiKeyBtn;
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    btn.textContent = '🙈';
+                } else {
+                    input.type = 'password';
+                    btn.textContent = '👁️';
+                }
             }
 
             async saveApiKey() {
                 const apiKey = this.elements.apiKeyInput.value.trim();
                 if (!apiKey) {
-                    this.addMessage('system', 'Por favor ingresa una API Key válida.');
+                    this.showError('Por favor ingresa una API Key válida.');
                     return;
                 }
 
                 try {
                     await this.initializeGemini(apiKey);
                     localStorage.setItem('englishbuddy_api_key', apiKey);
+                    this.elements.removeApiKeyBtn.classList.remove('hidden');
+                    this.elements.apiKeyAlert.classList.add('hidden');
                     this.hideSettings();
                     this.addMessage('system', '✅ API Key guardada correctamente. ¡Listo para conversar!');
                 } catch (error) {
-                    this.addMessage('system', 'Error: API Key inválida. Por favor verifica tu clave.');
+                    this.showError('Error: API Key inválida. Por favor verifica tu clave.');
+                }
+            }
+
+            removeApiKey() {
+                if (this.showConfirmDialog('¿Seguro que quieres eliminar la API Key?')) {
+                    localStorage.removeItem('englishbuddy_api_key');
+                    this.elements.apiKeyInput.value = '';
+                    this.elements.removeApiKeyBtn.classList.add('hidden');
+                    this.geminiModel = null;
+                    this.showApiKeyAlert();
+                    this.endSession();
+                    this.updateSessionButton();
                 }
             }
 
@@ -1049,25 +1212,31 @@ Responde como EnglishBuddy de manera natural y útil.`;
                 this.elements.buddyStatus.textContent = status;
             }
 
+            showError(message) {
+                this.addMessage('system', `❌ ${message}`);
+            }
+
             updateUI() {
                 // Update stats
                 this.elements.todayConversations.textContent = this.sessionData.conversationsToday;
                 this.elements.todayLessons.textContent = this.sessionData.lessonsToday;
                 this.elements.todayWords.textContent = this.sessionData.wordsToday;
-                this.elements.todayAccuracy.textContent = `${this.sessionData.accuracy}%`;
+                this.elements.activeTime.textContent = `${this.sessionData.totalActiveTime} min`;
 
                 // Update level
                 const levels = {
-                    'beginner': { text: 'Principiante', progress: 15 },
-                    'elementary': { text: 'Elemental', progress: 30 },
-                    'intermediate': { text: 'Intermedio', progress: 50 },
-                    'upper-intermediate': { text: 'Intermedio Superior', progress: 75 },
-                    'advanced': { text: 'Avanzado', progress: 90 }
+                    'beginner': { text: 'Principiante', icon: '🌱' },
+                    'elementary': { text: 'Elemental', icon: '🌿' },
+                    'intermediate': { text: 'Intermedio', icon: '🌳' },
+                    'upper-intermediate': { text: 'Intermedio Superior', icon: '🎯' },
+                    'advanced': { text: 'Avanzado', icon: '🏆' }
                 };
 
                 const levelInfo = levels[this.userProfile.level] || levels['beginner'];
                 this.elements.levelText.textContent = levelInfo.text;
-                this.elements.progressBar.style.width = `${levelInfo.progress}%`;
+                this.elements.levelIcon.textContent = levelInfo.icon;
+
+                this.updateSessionStatus();
             }
         }
 
