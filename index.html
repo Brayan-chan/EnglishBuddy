@@ -761,7 +761,7 @@ Responde de manera natural y siempre recuerda que eres como un amigo que ayuda a
             }
 
             resetSession() {
-                if (this.showConfirmDialog('¿Seguro que quieres reiniciar todo? Se perderá el progreso actual.')) {
+                this.showConfirmDialog('¿Seguro que quieres reiniciar todo? Se perderá el progreso actual.', () => {
                     this.conversationHistory = [];
                     this.sessionData = {
                         conversationsToday: 0,
@@ -786,7 +786,7 @@ Responde de manera natural y siempre recuerda que eres como un amigo que ayuda a
                     this.disableInterface();
                     this.updateUI();
                     this.saveUserData();
-                }
+                });
             }
 
             updateSessionButton() {
@@ -881,6 +881,12 @@ Responde de manera natural y siempre recuerda que eres como un amigo que ayuda a
                 
                 this.addMessage('assistant', initialMessage);
                 this.conversationHistory.push({ role: 'assistant', content: initialMessage });
+                
+                // Speak the welcome message
+                if (this.settings.enableTTS) {
+                    this.speakText(initialMessage);
+                }
+                
                 this.saveUserData();
             }
 
@@ -1016,8 +1022,8 @@ Responde como EnglishBuddy de manera natural y útil.`;
                 }`;
 
                 // Process markdown if it's an assistant message
-                if (role === 'assistant') {
-                    bubbleDiv.innerHTML = DOMPurify.sanitize(marked.parse(content));
+                if (role === 'assistant' && window.marked && window.DOMPurify) {
+                    bubbleDiv.innerHTML = window.DOMPurify.sanitize(window.marked.parse(content));
                 } else {
                     bubbleDiv.textContent = content;
                 }
@@ -1028,7 +1034,11 @@ Responde como EnglishBuddy de manera natural y útil.`;
             }
 
             showLessonPanel(content) {
-                this.elements.lessonContent.innerHTML = DOMPurify.sanitize(marked.parse(content));
+                if (window.marked && window.DOMPurify) {
+                    this.elements.lessonContent.innerHTML = window.DOMPurify.sanitize(window.marked.parse(content));
+                } else {
+                    this.elements.lessonContent.textContent = content;
+                }
                 this.elements.lessonPanel.classList.remove('hidden');
             }
 
@@ -1040,7 +1050,11 @@ Responde como EnglishBuddy de manera natural y útil.`;
             }
 
             showCorrectionModal(content) {
-                this.elements.correctionContent.innerHTML = DOMPurify.sanitize(marked.parse(content));
+                if (window.marked && window.DOMPurify) {
+                    this.elements.correctionContent.innerHTML = window.DOMPurify.sanitize(window.marked.parse(content));
+                } else {
+                    this.elements.correctionContent.textContent = content;
+                }
                 this.elements.correctionModal.classList.remove('hidden');
             }
 
@@ -1137,8 +1151,19 @@ Responde como EnglishBuddy de manera natural y útil.`;
                 this.elements.customInstructions.value = '';
             }
 
-            showConfirmDialog(message) {
-                return confirm(message);
+            showConfirmDialog(message, onConfirm) {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full mx-4">
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">${message}</p>
+                        <div class="flex justify-end space-x-3">
+                            <button class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" onclick="this.closest('.fixed').remove()">Cancelar</button>
+                            <button class="px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded" onclick="this.closest('.fixed').remove(); (${onConfirm.toString()})()">Confirmar</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
             }
 
             showApiKeyAlert() {
@@ -1178,7 +1203,7 @@ Responde como EnglishBuddy de manera natural y útil.`;
             }
 
             removeApiKey() {
-                if (this.showConfirmDialog('¿Seguro que quieres eliminar la API Key?')) {
+                this.showConfirmDialog('¿Seguro que quieres eliminar la API Key?', () => {
                     localStorage.removeItem('englishbuddy_api_key');
                     this.elements.apiKeyInput.value = '';
                     this.elements.removeApiKeyBtn.classList.add('hidden');
@@ -1186,18 +1211,18 @@ Responde como EnglishBuddy de manera natural y útil.`;
                     this.showApiKeyAlert();
                     this.endSession();
                     this.updateSessionButton();
-                }
+                });
             }
 
             resetAllData() {
-                if (this.showConfirmDialog('¿Seguro que quieres eliminar TODOS los datos? Esta acción no se puede deshacer.')) {
+                this.showConfirmDialog('¿Seguro que quieres eliminar TODOS los datos? Esta acción no se puede deshacer.', () => {
                     localStorage.removeItem('englishbuddy_profile');
                     localStorage.removeItem('englishbuddy_session');
                     localStorage.removeItem('englishbuddy_settings');
                     localStorage.removeItem('englishbuddy_history');
                     localStorage.removeItem('englishbuddy_api_key');
                     location.reload();
-                }
+                });
             }
 
             showSettings() {
