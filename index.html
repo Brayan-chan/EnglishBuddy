@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnglishBuddy - Tu Compañero de Inglés con IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "@google/generative-ai": "https://esm.run/@google/generative-ai"
+            }
+        }
+    </script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        'primary-dark': '#2563EB',
+                        secondary: '#10B981',
+                        accent: '#F59E0B'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100">
+    <div class="min-h-full flex flex-col">
+        <!-- Header -->
+        <header class="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0">
+                            <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                🗣️ EnglishBuddy
+                            </h1>
+                        </div>
+                        <div class="hidden md:block">
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                Tu compañero de inglés personalizado con IA
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <!-- Progress Bar -->
+                        <div class="hidden md:flex items-center space-x-2">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Nivel:</span>
+                            <div class="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div id="progressBar" class="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full transition-all duration-300" style="width: 15%"></div>
+                            </div>
+                            <span id="levelText" class="text-sm font-medium text-blue-600 dark:text-blue-400">Principiante</span>
+                        </div>
+                        <button id="settingsBtn" class="p-2 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full">
+                <!-- Left Sidebar - Controls & Stats -->
+                <div class="lg:col-span-1 space-y-4">
+                    <!-- Session Controls -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                            Sesión Activa
+                        </h3>
+                        <div class="space-y-3">
+                            <button id="pauseBtn" class="w-full px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors flex items-center justify-center">
+                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                                </svg>
+                                Pausar
+                            </button>
+                            <button id="endBtn" class="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center justify-center">
+                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M6 6h12v12H6z"/>
+                                </svg>
+                                Finalizar
+                            </button>
+                            <button id="resetBtn" class="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors flex items-center justify-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                                Reiniciar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">📊 Estadísticas Hoy</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Conversaciones:</span>
+                                <span id="todayConversations" class="font-medium">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Lecciones:</span>
+                                <span id="todayLessons" class="font-medium">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Palabras nuevas:</span>
+                                <span id="todayWords" class="font-medium">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Precisión:</span>
+                                <span id="todayAccuracy" class="font-medium text-green-600">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Voice Controls -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">🎤 Control de Voz</h3>
+                        <div class="space-y-3">
+                            <button id="voiceBtn" class="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center justify-center">
+                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                </svg>
+                                Hablar
+                            </button>
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="autoListen" class="rounded">
+                                <label for="autoListen" class="text-sm">Escucha automática</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center - Main Chat -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg h-full flex flex-col">
+                        <!-- Chat Header -->
+                        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white font-bold">EB</span>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold">EnglishBuddy</h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400" id="buddyStatus">Listo para conversar</p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button id="speakToggle" class="p-2 rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Messages -->
+                        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4 max-h-96">
+                            <div class="flex justify-center">
+                                <div class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-lg text-sm">
+                                    ¡Hola! Soy tu EnglishBuddy. Háblame en español sobre ti, tus intereses, tu día... ¡Empecemos a conocernos! 😊
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lesson Panel (Hidden by default) -->
+                        <div id="lessonPanel" class="border-t border-gray-200 dark:border-gray-700 p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 hidden">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="font-semibold text-green-800 dark:text-green-300">📚 Lección del día</h4>
+                                <button id="startLessonBtn" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm transition-colors">
+                                    Comenzar
+                                </button>
+                            </div>
+                            <div id="lessonContent" class="text-sm text-gray-700 dark:text-gray-300">
+                                <!-- Lesson content will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Input Area -->
+                        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                            <div class="flex space-x-3">
+                                <input type="text" id="messageInput" placeholder="Escribe tu mensaje o habla..." 
+                                       class="flex-1 px-4 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white">
+                                <button id="sendBtn" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar - Instructions & Tools -->
+                <div class="lg:col-span-1 space-y-4">
+                    <!-- Custom Instructions -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+                        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="font-semibold flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253z"></path>
+                                </svg>
+                                Instrucciones
+                            </h3>
+                        </div>
+                        <div class="p-4">
+                            <textarea id="customInstructions" rows="4" placeholder="Dale instrucciones específicas a tu EnglishBuddy..."
+                                      class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-white resize-none"></textarea>
+                            <button id="applyInstructionsBtn" class="w-full mt-3 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-sm transition-colors">
+                                Aplicar Instrucciones
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
+                        <h3 class="font-semibold mb-3">⚡ Acciones Rápidas</h3>
+                        <div class="space-y-2">
+                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors" data-action="correct">
+                                ✅ Corregir último error
+                            </button>
+                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors" data-action="repeat">
+                                🔄 Repetir ejercicio
+                            </button>
+                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors" data-action="example">
+                                💡 Más ejemplos
+                            </button>
+                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors" data-action="challenge">
+                                🎯 Nuevo reto
+                            </button>
+                            <button class="quick-action w-full px-3 py-2 text-left text-sm bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors" data-action="skip">
+                                ⏭️ Omitir y continuar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Learning Progress -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
+                        <h3 class="font-semibold mb-3">📈 Progreso de Aprendizaje</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Vocabulario</span>
+                                    <span id="vocabProgress">45%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 45%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Gramática</span>
+                                    <span id="grammarProgress">30%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 30%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Pronunciación</span>
+                                    <span id="pronunciationProgress">60%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div class="bg-purple-500 h-2 rounded-full" style="width: 60%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full mx-4 p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold">⚙️ Configuración</h3>
+                    <button id="closeSettingsBtn" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <!-- API Key -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">API Key de Google Gemini</label>
+                        <div class="flex space-x-2">
+                            <input type="password" id="apiKeyInput" placeholder="Ingresa tu API Key" 
+                                   class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-white">
+                            <button id="saveApiKeyBtn" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm transition-colors">
+                                Guardar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Learning Level -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Nivel de Inglés</label>
+                        <select id="levelSelect" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-white">
+                            <option value="beginner">Principiante</option>
+                            <option value="elementary">Elemental</option>
+                            <option value="intermediate">Intermedio</option>
+                            <option value="upper-intermediate">Intermedio Superior</option>
+                            <option value="advanced">Avanzado</option>
+                        </select>
+                    </div>
+
+                    <!-- Voice Settings -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Configuración de Voz</label>
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="enableTTS" class="rounded" checked>
+                                <label for="enableTTS" class="text-sm">Activar síntesis de voz</label>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="enableSTT" class="rounded" checked>
+                                <label for="enableSTT" class="text-sm">Activar reconocimiento de voz</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reset Data -->
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <button id="resetDataBtn" class="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm transition-colors">
+                            🗑️ Resetear Todos los Datos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Correction Modal -->
+        <div id="correctionModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full mx-4 p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-red-600 dark:text-red-400">❌ Corrección</h3>
+                    <button id="closeCorrectionBtn" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div id="correctionContent" class="space-y-4">
+                    <!-- Correction content will be populated here -->
+                </div>
+
+                <div class="flex space-x-3 mt-6">
+                    <button id="tryCorrectionBtn" class="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors">
+                        Intentar de nuevo
+                    </button>
+                    <button id="skipCorrectionBtn" class="flex-1 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md transition-colors">
+                        Omitir y continuar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { GoogleGenerativeAI } from "@google/generative-ai";
+
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Application State
+        class EnglishBuddyApp {
+            constructor() {
+                this.geminiModel = null;
+                this.conversationHistory = [];
+                this.userProfile = {
+                    name: '',
+                    interests: [],
+                    level: 'beginner',
+                    learningGoals: [],
+                    commonErrors: [],
+                    strongPoints: []
+                };
+                this.sessionData = {
+                    conversationsToday: 0,
+                    lessonsToday: 0,
+                    wordsToday: 0,
+                    accuracy: 0,
+                    isInLesson: false,
+                    currentLessonTopic: '',
+                    awaitingCorrection: false
+                };
+                this.settings = {
+                    enableTTS: true,
+                    enableSTT: true,
+                    autoListen: false
+                };
+                
+                this.speech = {
+                    recognition: null,
+                    synthesis: window.speechSynthesis,
+                    isListening: false
+                };
+
+                this.initializeApp();
+            }
+
+            async initializeApp() {
+                this.loadUserData();
+                this.initializeElements();
+                this.initializeSpeech();
+                this.bindEvents();
+                
+                const savedApiKey = localStorage.getItem('englishbuddy_api_key');
+                if (savedApiKey) {
+                    await this.initializeGemini(savedApiKey);
+                    document.getElementById('apiKeyInput').value = savedApiKey;
+                } else {
+                    this.showSettings();
+                }
+            }
+
+            loadUserData() {
+                const savedProfile = localStorage.getItem('englishbuddy_profile');
+                const savedSession = localStorage.getItem('englishbuddy_session');
+                const savedSettings = localStorage.getItem('englishbuddy_settings');
+                const savedHistory = localStorage.getItem('englishbuddy_history');
+
+                if (savedProfile) {
+                    this.userProfile = { ...this.userProfile, ...JSON.parse(savedProfile) };
+                }
+                
+                if (savedSession) {
+                    this.sessionData = { ...this.sessionData, ...JSON.parse(savedSession) };
+                }
+                
+                if (savedSettings) {
+                    this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
+                }
+
+                if (savedHistory) {
+                    this.conversationHistory = JSON.parse(savedHistory);
+                }
+
+                this.updateUI();
+            }
+
+            saveUserData() {
+                localStorage.setItem('englishbuddy_profile', JSON.stringify(this.userProfile));
+                localStorage.setItem('englishbuddy_session', JSON.stringify(this.sessionData));
+                localStorage.setItem('englishbuddy_settings', JSON.stringify(this.settings));
+                localStorage.setItem('englishbuddy_history', JSON.stringify(this.conversationHistory));
+            }
+
+            initializeElements() {
+                this.elements = {
+                    // Main elements
+                    chatMessages: document.getElementById('chatMessages'),
+                    messageInput: document.getElementById('messageInput'),
+                    sendBtn: document.getElementById('sendBtn'),
+                    voiceBtn: document.getElementById('voiceBtn'),
+                    
+                    // Controls
+                    pauseBtn: document.getElementById('pauseBtn'),
+                    endBtn: document.getElementById('endBtn'),
+                    resetBtn: document.getElementById('resetBtn'),
+                    
+                    // Settings
+                    settingsBtn: document.getElementById('settingsBtn'),
+                    settingsModal: document.getElementById('settingsModal'),
+                    closeSettingsBtn: document.getElementById('closeSettingsBtn'),
+                    apiKeyInput: document.getElementById('apiKeyInput'),
+                    saveApiKeyBtn: document.getElementById('saveApiKeyBtn'),
+                    levelSelect: document.getElementById('levelSelect'),
+                    enableTTS: document.getElementById('enableTTS'),
+                    enableSTT: document.getElementById('enableSTT'),
+                    resetDataBtn: document.getElementById('resetDataBtn'),
+                    
+                    // Lesson elements
+                    lessonPanel: document.getElementById('lessonPanel'),
+                    startLessonBtn: document.getElementById('startLessonBtn'),
+                    lessonContent: document.getElementById('lessonContent'),
+                    
+                    // Instructions
+                    customInstructions: document.getElementById('customInstructions'),
+                    applyInstructionsBtn: document.getElementById('applyInstructionsBtn'),
+                    
+                    // Stats
+                    todayConversations: document.getElementById('todayConversations'),
+                    todayLessons: document.getElementById('todayLessons'),
+                    todayWords: document.getElementById('todayWords'),
+                    todayAccuracy: document.getElementById('todayAccuracy'),
+                    progressBar: document.getElementById('progressBar'),
+                    levelText: document.getElementById('levelText'),
+                    buddyStatus: document.getElementById('buddyStatus'),
+                    
+                    // Correction modal
+                    correctionModal: document.getElementById('correctionModal'),
+                    closeCorrectionBtn: document.getElementById('closeCorrectionBtn'),
+                    correctionContent: document.getElementById('correctionContent'),
+                    tryCorrectionBtn: document.getElementById('tryCorrectionBtn'),
+                    skipCorrectionBtn: document.getElementById('skipCorrectionBtn'),
+                    
+                    // Quick actions
+                    quickActions: document.querySelectorAll('.quick-action'),
+                    
+                    // Other
+                    speakToggle: document.getElementById('speakToggle'),
+                    autoListen: document.getElementById('autoListen')
+                };
+
+                // Set initial values
+                this.elements.levelSelect.value = this.userProfile.level;
+                this.elements.enableTTS.checked = this.settings.enableTTS;
+                this.elements.enableSTT.checked = this.settings.enableSTT;
+                this.elements.autoListen.checked = this.settings.autoListen;
+            }
+
+            initializeSpeech() {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.speech.recognition = new SpeechRecognition();
+                    this.speech.recognition.continuous = false;
+                    this.speech.recognition.interimResults = false;
+                    this.speech.recognition.lang = 'es-ES';
+
+                    this.speech.recognition.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        this.elements.messageInput.value = transcript;
+                        this.sendMessage();
+                    };
+
+                    this.speech.recognition.onend = () => {
+                        this.speech.isListening = false;
+                        this.updateVoiceButton();
+                    };
+
+                    this.speech.recognition.onerror = (event) => {
+                        console.error('Speech recognition error:', event.error);
+                        this.speech.isListening = false;
+                        this.updateVoiceButton();
+                    };
+                }
+            }
+
+            bindEvents() {
+                // Message sending
+                this.elements.sendBtn.addEventListener('click', () => this.sendMessage());
+                this.elements.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
+                });
+
+                // Voice control
+                this.elements.voiceBtn.addEventListener('click', () => this.toggleVoice());
+
+                // Session controls
+                this.elements.pauseBtn.addEventListener('click', () => this.pauseSession());
+                this.elements.endBtn.addEventListener('click', () => this.endSession());
+                this.elements.resetBtn.addEventListener('click', () => this.resetSession());
+
+                // Settings
+                this.elements.settingsBtn.addEventListener('click', () => this.showSettings());
+                this.elements.closeSettingsBtn.addEventListener('click', () => this.hideSettings());
+                this.elements.saveApiKeyBtn.addEventListener('click', () => this.saveApiKey());
+                this.elements.resetDataBtn.addEventListener('click', () => this.resetAllData());
+
+                // Level change
+                this.elements.levelSelect.addEventListener('change', (e) => {
+                    this.userProfile.level = e.target.value;
+                    this.saveUserData();
+                    this.updateUI();
+                });
+
+                // Settings checkboxes
+                this.elements.enableTTS.addEventListener('change', (e) => {
+                    this.settings.enableTTS = e.target.checked;
+                    this.saveUserData();
+                });
+
+                this.elements.enableSTT.addEventListener('change', (e) => {
+                    this.settings.enableSTT = e.target.checked;
+                    this.saveUserData();
+                });
+
+                this.elements.autoListen.addEventListener('change', (e) => {
+                    this.settings.autoListen = e.target.checked;
+                    this.saveUserData();
+                });
+
+                // Custom instructions
+                this.elements.applyInstructionsBtn.addEventListener('click', () => this.applyCustomInstructions());
+
+                // Lesson controls
+                this.elements.startLessonBtn.addEventListener('click', () => this.startLesson());
+
+                // Quick actions
+                this.elements.quickActions.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const action = e.target.dataset.action;
+                        this.handleQuickAction(action);
+                    });
+                });
+
+                // Correction modal
+                this.elements.closeCorrectionBtn.addEventListener('click', () => this.hideCorrectionModal());
+                this.elements.tryCorrectionBtn.addEventListener('click', () => this.retryCorrection());
+                this.elements.skipCorrectionBtn.addEventListener('click', () => this.skipCorrection());
+
+                // Speech toggle
+                this.elements.speakToggle.addEventListener('click', () => this.toggleSpeechOutput());
+
+                // Click outside modal to close
+                window.addEventListener('click', (e) => {
+                    if (e.target === this.elements.settingsModal) {
+                        this.hideSettings();
+                    }
+                    if (e.target === this.elements.correctionModal) {
+                        this.hideCorrectionModal();
+                    }
+                });
+            }
+
+            async initializeGemini(apiKey) {
+                try {
+                    const genAI = new GoogleGenerativeAI(apiKey);
+                    this.geminiModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+                    
+                    // If this is the first time, send welcome message
+                    if (this.conversationHistory.length === 0) {
+                        await this.initializeConversation();
+                    }
+                } catch (error) {
+                    console.error("Error initializing Gemini:", error);
+                    throw new Error("API Key inválida o error de inicialización");
+                }
+            }
+
+            async initializeConversation() {
+                const systemPrompt = this.buildSystemPrompt();
+                this.conversationHistory = [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'assistant', content: '¡Hola! Soy tu EnglishBuddy. Háblame en español sobre ti, tus intereses, tu día... ¡Empecemos a conocernos! 😊' }
+                ];
+                this.saveUserData();
+            }
+
+            buildSystemPrompt() {
+                return `Eres EnglishBuddy, un asistente de IA revolucionario para aprender inglés. Tu personalidad es amigable, paciente y motivadora.
+
+PERFIL DEL USUARIO:
+- Nivel: ${this.userProfile.level}
+- Intereses: ${this.userProfile.interests.join(', ') || 'Por descubrir'}
+- Errores comunes: ${this.userProfile.commonErrors.join(', ') || 'Ninguno registrado'}
+
+INSTRUCCIONES PRINCIPALES:
+
+1. FASE DE CONVERSACIÓN (Español):
+   - Habla SIEMPRE en español durante esta fase
+   - Conoce al usuario: sus intereses, trabajo, hobbies, día a día
+   - Haz preguntas específicas sobre sus temas de interés
+   - Sé natural, como un amigo curioso
+   - Después de 3-5 intercambios, sugiere una lección del día
+
+2. FASE DE LECCIÓN (Inglés + Español):
+   - Basa las lecciones en los intereses del usuario
+   - Progresión: palabra → frase corta → oración → conversación
+   - Siempre explica en español primero, luego enseña en inglés
+   - Da ejemplos relacionados con sus intereses
+   - Evalúa respuestas: correcto/incorrecto con explicación
+
+3. SISTEMA DE CORRECCIÓN:
+   - Si está mal: explica el error en español, da la forma correcta
+   - Ofrece ejemplos adicionales
+   - Pregunta si quiere intentar de nuevo o continuar
+   - Registra errores para futuras lecciones
+
+4. PERSONALIZACIÓN:
+   - Adapta vocabulario a sus intereses
+   - Usa ejemplos de sus temas favoritos
+   - Ajusta dificultad según el nivel
+   - Recuerda errores previos para reforzar
+
+5. MOTIVACIÓN:
+   - Celebra logros
+   - Da feedback positivo
+   - Ofrece retos progresivos
+   - Mantén un tono amigable y alentador
+
+Responde de manera natural y siempre recuerda que eres como un amigo que ayuda a aprender inglés.`;
+            }
+
+            async sendMessage() {
+                const message = this.elements.messageInput.value.trim();
+                if (!message || !this.geminiModel) return;
+
+                this.addMessage('user', message);
+                this.elements.messageInput.value = '';
+                this.updateBuddyStatus('Pensando...');
+
+                try {
+                    // Add user message to history
+                    this.conversationHistory.push({ role: 'user', content: message });
+
+                    // Build conversation context
+                    const conversationText = this.conversationHistory
+                        .filter(msg => msg.role !== 'system')
+                        .map(msg => `${msg.role === 'user' ? 'Usuario' : 'EnglishBuddy'}: ${msg.content}`)
+                        .join('\n\n');
+
+                    const fullPrompt = `${this.conversationHistory[0].content}
+
+HISTORIAL DE CONVERSACIÓN:
+${conversationText}
+
+INSTRUCCIONES ESPECIALES:
+${this.elements.customInstructions.value || 'Ninguna instrucción especial.'}
+
+DATOS DE LA SESIÓN:
+- Conversaciones hoy: ${this.sessionData.conversationsToday}
+- Lecciones hoy: ${this.sessionData.lessonsToday}
+- En lección: ${this.sessionData.isInLesson ? 'Sí' : 'No'}
+- Tema actual: ${this.sessionData.currentLessonTopic || 'Ninguno'}
+
+Responde como EnglishBuddy de manera natural y útil.`;
+
+                    const result = await this.geminiModel.generateContent(fullPrompt);
+                    const response = await result.response;
+                    const text = await response.text();
+
+                    this.addMessage('assistant', text);
+                    this.conversationHistory.push({ role: 'assistant', content: text });
+
+                    // Process response for lesson detection and user profiling
+                    this.processResponse(text, message);
+
+                    // Text-to-speech if enabled
+                    if (this.settings.enableTTS) {
+                        this.speakText(text);
+                    }
+
+                    // Auto-listen if enabled
+                    if (this.settings.autoListen && this.settings.enableSTT) {
+                        setTimeout(() => this.startVoiceRecognition(), 1000);
+                    }
+
+                    this.updateBuddyStatus('Listo para conversar');
+                    this.sessionData.conversationsToday++;
+                    this.saveUserData();
+                    this.updateUI();
+
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                    this.addMessage('system', 'Error al procesar el mensaje. Por favor, verifica tu conexión.');
+                    this.updateBuddyStatus('Error - Reinicia la conversación');
+                }
+            }
+
+            processResponse(response, userMessage) {
+                // Check for lesson suggestion
+                if (response.toLowerCase().includes('lección del día') || response.toLowerCase().includes('lesson')) {
+                    this.showLessonPanel(response);
+                }
+
+                // Extract user interests
+                const interestKeywords = ['me gusta', 'interesa', 'trabajo en', 'estudio', 'hobby', 'afición'];
+                if (interestKeywords.some(keyword => userMessage.toLowerCase().includes(keyword))) {
+                    this.extractInterests(userMessage);
+                }
+
+                // Check for correction context
+                if (response.toLowerCase().includes('incorrecto') || response.toLowerCase().includes('error')) {
+                    this.sessionData.awaitingCorrection = true;
+                    this.showCorrectionModal(response);
+                }
+
+                // Update lesson status
+                if (response.toLowerCase().includes('comenzamos') || response.toLowerCase().includes('empecemos')) {
+                    this.sessionData.isInLesson = true;
+                    this.sessionData.lessonsToday++;
+                }
+            }
+
+            extractInterests(message) {
+                const words = message.toLowerCase().split(' ');
+                const potentialInterests = [];
+
+                // Simple keyword extraction (could be improved with NLP)
+                const topicKeywords = {
+                    'tecnología': ['programación', 'código', 'software', 'computadora', 'tecnología'],
+                    'música': ['música', 'cantar', 'tocar', 'instrumento', 'banda'],
+                    'deportes': ['fútbol', 'basketball', 'correr', 'gym', 'ejercicio'],
+                    'comida': ['cocinar', 'cocina', 'recetas', 'restaurante', 'comida'],
+                    'viajes': ['viajar', 'turismo', 'países', 'culturas', 'aventura']
+                };
+
+                Object.entries(topicKeywords).forEach(([topic, keywords]) => {
+                    if (keywords.some(keyword => words.includes(keyword))) {
+                        if (!this.userProfile.interests.includes(topic)) {
+                            this.userProfile.interests.push(topic);
+                            potentialInterests.push(topic);
+                        }
+                    }
+                });
+
+                if (potentialInterests.length > 0) {
+                    this.saveUserData();
+                }
+            }
+
+            addMessage(role, content) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+
+                const bubbleDiv = document.createElement('div');
+                bubbleDiv.className = `max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                    role === 'user' 
+                        ? 'bg-blue-500 text-white' 
+                        : role === 'assistant'
+                        ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                        : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                }`;
+
+                // Process markdown if it's an assistant message
+                if (role === 'assistant') {
+                    bubbleDiv.innerHTML = DOMPurify.sanitize(marked.parse(content));
+                } else {
+                    bubbleDiv.textContent = content;
+                }
+
+                messageDiv.appendChild(bubbleDiv);
+                this.elements.chatMessages.appendChild(messageDiv);
+                this.elements.chatMessages.scrollTop = this.elements.chatMessages.scrollHeight;
+            }
+
+            showLessonPanel(content) {
+                this.elements.lessonContent.innerHTML = DOMPurify.sanitize(marked.parse(content));
+                this.elements.lessonPanel.classList.remove('hidden');
+            }
+
+            startLesson() {
+                this.sessionData.isInLesson = true;
+                this.elements.lessonPanel.classList.add('hidden');
+                this.addMessage('system', '📚 ¡Lección iniciada! Sigue las instrucciones de tu EnglishBuddy.');
+                this.saveUserData();
+            }
+
+            showCorrectionModal(content) {
+                this.elements.correctionContent.innerHTML = DOMPurify.sanitize(marked.parse(content));
+                this.elements.correctionModal.classList.remove('hidden');
+            }
+
+            hideCorrectionModal() {
+                this.elements.correctionModal.classList.add('hidden');
+                this.sessionData.awaitingCorrection = false;
+            }
+
+            retryCorrection() {
+                this.hideCorrectionModal();
+                this.addMessage('system', '🔄 Intenta de nuevo. Tu EnglishBuddy te está esperando.');
+            }
+
+            skipCorrection() {
+                this.hideCorrectionModal();
+                this.addMessage('system', '⏭️ Continuando con la lección...');
+                this.elements.messageInput.value = 'Continúa con la siguiente parte de la lección';
+                this.sendMessage();
+            }
+
+            handleQuickAction(action) {
+                const actions = {
+                    'correct': '✅ Por favor, corrige mi último error y explícame qué hice mal.',
+                    'repeat': '🔄 Repite el último ejercicio con un ejemplo diferente.',
+                    'example': '💡 Dame más ejemplos del tema actual.',
+                    'challenge': '🎯 Dame un reto más difícil relacionado con este tema.',
+                    'skip': '⏭️ Omite esto y continúa con la siguiente parte.'
+                };
+
+                if (actions[action]) {
+                    this.elements.messageInput.value = actions[action];
+                    this.sendMessage();
+                }
+            }
+
+            toggleVoice() {
+                if (!this.settings.enableSTT || !this.speech.recognition) {
+                    this.addMessage('system', 'Reconocimiento de voz no disponible en este navegador.');
+                    return;
+                }
+
+                if (this.speech.isListening) {
+                    this.speech.recognition.stop();
+                } else {
+                    this.startVoiceRecognition();
+                }
+            }
+
+            startVoiceRecognition() {
+                if (!this.speech.recognition) return;
+
+                this.speech.isListening = true;
+                this.updateVoiceButton();
+                this.speech.recognition.start();
+                this.updateBuddyStatus('Escuchando...');
+            }
+
+            updateVoiceButton() {
+                const isListening = this.speech.isListening;
+                this.elements.voiceBtn.innerHTML = isListening 
+                    ? `<svg class="w-4 h-4 mr-2 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>Escuchando...`
+                    : `<svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>Hablar`;
+                
+                this.elements.voiceBtn.className = isListening 
+                    ? 'w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center justify-center'
+                    : 'w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center justify-center';
+            }
+
+            speakText(text) {
+                if (!this.settings.enableTTS || !this.speech.synthesis) return;
+
+                // Cancel any ongoing speech
+                this.speech.synthesis.cancel();
+
+                // Clean text for speech (remove markdown and special characters)
+                const cleanText = text
+                    .replace(/[*_`#]/g, '')
+                    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+                    .replace(/\n/g, ' ');
+
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.lang = 'es-ES';
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                
+                this.speech.synthesis.speak(utterance);
+            }
+
+            toggleSpeechOutput() {
+                this.settings.enableTTS = !this.settings.enableTTS;
+                this.elements.enableTTS.checked = this.settings.enableTTS;
+                this.saveUserData();
+                
+                const icon = this.elements.speakToggle.querySelector('svg');
+                icon.style.opacity = this.settings.enableTTS ? '1' : '0.5';
+            }
+
+            applyCustomInstructions() {
+                const instructions = this.elements.customInstructions.value.trim();
+                if (!instructions) return;
+
+                this.addMessage('system', `📝 Instrucciones aplicadas: ${instructions}`);
+                this.elements.customInstructions.value = '';
+            }
+
+            pauseSession() {
+                this.addMessage('system', '⏸️ Sesión pausada. Pulsa cualquier mensaje para continuar.');
+                this.updateBuddyStatus('En pausa');
+            }
+
+            endSession() {
+                this.addMessage('system', '👋 Sesión finalizada. ¡Excelente trabajo hoy!');
+                this.updateBuddyStatus('Sesión finalizada');
+                this.sessionData.isInLesson = false;
+                this.saveUserData();
+            }
+
+            resetSession() {
+                if (this.showConfirmDialog('¿Seguro que quieres reiniciar la conversación? Se perderá el progreso actual.')) {
+                    this.conversationHistory = [];
+                    this.sessionData = {
+                        conversationsToday: 0,
+                        lessonsToday: 0,
+                        wordsToday: 0,
+                        accuracy: 0,
+                        isInLesson: false,
+                        currentLessonTopic: '',
+                        awaitingCorrection: false
+                    };
+                    this.elements.chatMessages.innerHTML = '';
+                    this.initializeConversation();
+                    this.updateUI();
+                    this.saveUserData();
+                }
+            }
+
+            showConfirmDialog(message) {
+                return confirm(message); // In a real app, use a custom modal
+            }
+
+            async saveApiKey() {
+                const apiKey = this.elements.apiKeyInput.value.trim();
+                if (!apiKey) {
+                    this.addMessage('system', 'Por favor ingresa una API Key válida.');
+                    return;
+                }
+
+                try {
+                    await this.initializeGemini(apiKey);
+                    localStorage.setItem('englishbuddy_api_key', apiKey);
+                    this.hideSettings();
+                    this.addMessage('system', '✅ API Key guardada correctamente. ¡Listo para conversar!');
+                } catch (error) {
+                    this.addMessage('system', 'Error: API Key inválida. Por favor verifica tu clave.');
+                }
+            }
+
+            resetAllData() {
+                if (this.showConfirmDialog('¿Seguro que quieres eliminar TODOS los datos? Esta acción no se puede deshacer.')) {
+                    localStorage.removeItem('englishbuddy_profile');
+                    localStorage.removeItem('englishbuddy_session');
+                    localStorage.removeItem('englishbuddy_settings');
+                    localStorage.removeItem('englishbuddy_history');
+                    localStorage.removeItem('englishbuddy_api_key');
+                    location.reload();
+                }
+            }
+
+            showSettings() {
+                this.elements.settingsModal.classList.remove('hidden');
+            }
+
+            hideSettings() {
+                this.elements.settingsModal.classList.add('hidden');
+            }
+
+            updateBuddyStatus(status) {
+                this.elements.buddyStatus.textContent = status;
+            }
+
+            updateUI() {
+                // Update stats
+                this.elements.todayConversations.textContent = this.sessionData.conversationsToday;
+                this.elements.todayLessons.textContent = this.sessionData.lessonsToday;
+                this.elements.todayWords.textContent = this.sessionData.wordsToday;
+                this.elements.todayAccuracy.textContent = `${this.sessionData.accuracy}%`;
+
+                // Update level
+                const levels = {
+                    'beginner': { text: 'Principiante', progress: 15 },
+                    'elementary': { text: 'Elemental', progress: 30 },
+                    'intermediate': { text: 'Intermedio', progress: 50 },
+                    'upper-intermediate': { text: 'Intermedio Superior', progress: 75 },
+                    'advanced': { text: 'Avanzado', progress: 90 }
+                };
+
+                const levelInfo = levels[this.userProfile.level] || levels['beginner'];
+                this.elements.levelText.textContent = levelInfo.text;
+                this.elements.progressBar.style.width = `${levelInfo.progress}%`;
+            }
+        }
+
+        // Initialize the application
+        window.app = new EnglishBuddyApp();
+
+    </script>
+</body>
+</html>
